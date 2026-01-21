@@ -12,6 +12,8 @@ Set default region (optional): gcloud config set run/region us-central1
 Deploy the backend: 
 gcloud run deploy classroom-hw-backend \
   --source backend \
-  --allow-unauthenticated
+  --allow-unauthenticated \
+  --region us-central1
 Accept the defaults
-This builds Docker image and deploys the container to Cloud Run.
+This command builds Docker image and deploys the container to Cloud Run.
+It creates and returns Service URL such as https://classroom-hw-backend-90197506094.us-central1.run.app

@@ -6,6 +6,13 @@ from firebase_admin import auth as fb_auth, credentials
 
 app = Flask(__name__)
 
+ALLOWED_ORIGINS = {
+    "http://localhost:8000",
+    "http://localhost:5500",
+    "http://127.0.0.1:8000",
+    "https://ellablac.github.io",
+}
+
 # Initialize Firebase Admin (for verifying Firebase ID tokens)
 if not firebase_admin._apps:
     # For Cloud Run, we’ll provide service account JSON via an env var later.
@@ -20,8 +27,11 @@ if not firebase_admin._apps:
 def health():
     return "ok", 200
 
-@app.post("/whoami")
+@app.route("/whoami", methods=["POST", "OPTIONS"])
 def whoami():
+    if request.method == "OPTIONS":
+        return ("", 204)
+    
     authz = request.headers.get("Authorization", "")
     if not authz.startswith("Bearer "):
         return jsonify({"error": "Missing Authorization: Bearer <Firebase ID token>"}), 401
@@ -39,12 +49,13 @@ def whoami():
     except Exception as e:
         return jsonify({"error": f"Invalid token: {e}"}), 401
 
-"""
-Setup (unix):
-Install gcloud: curl -sSL https://sdk.cloud.google.com | bash
-Restart the terminal
-Authenticate:
-gcloud auth login
-Set Project:
-gcloud config set project GoogleClassroomHomeWork
-"""
+
+@app.after_request
+def add_cors_headers(resp):
+    origin = request.headers.get("Origin")
+    if origin in ALLOWED_ORIGINS:
+        resp.headers["Access-Control-Allow-Origin"] = origin
+        resp.headers["Vary"] = "Origin"
+        resp.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        resp.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return resp

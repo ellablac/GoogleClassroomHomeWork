@@ -31,6 +31,16 @@ submitBtn.addEventListener("click", async () => {
     log("Got Firebase ID token (JWT). Next: send to backend.");
     // We'll use this in Step 5.2
     // console.log("ID TOKEN:", idToken);
+    const backendUrl = "https://classroom-hw-backend-90197506094.us-central1.run.app";
+
+    const resp = await fetch(`${backendUrl}/whoami`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${idToken}` }
+    });
+
+    const data = await resp.json();
+    log("Backend /whoami response:\n" + JSON.stringify(data, null, 2));
+    
   } catch (e) {
     log("Error: " + (e?.message || e));
   }
