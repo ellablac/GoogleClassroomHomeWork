@@ -6,3 +6,6 @@ Thumbs.db
 .vscode/
 .idea/
 .venv/
+
+#secrets
+oauth_client.json
