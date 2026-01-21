@@ -5,13 +5,7 @@ The script launches a local OAuth flow, creates an ASSIGNMENT in the target
 course, and prints the created coursework details.
 
 Example:
-  python scripts/create_coursework.py ^
-    --course_id ODQwNTI4MTQ1ODY1 ^
-    --title "HW1: Test submission" ^
-    --link "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO/hw/hw1/" ^
-    --max_points 100 ^
-    --state PUBLISHED
-    --notify_students (optional flag to notify students, false by default)
+python scripts/create_coursework.py --course_id 840528145865 --title "HW1: Test submission" --link "https://ellablac.github.io/GoogleClassroomHomeWork/site/hw/hw1/" --max_points 100 --state DRAFT
 """
 
 import argparse
@@ -32,9 +26,8 @@ def main():
     ap.add_argument("--title", required=True)
     ap.add_argument("--link", required=True, help="Homework page URL (GitHub Pages)")
     ap.add_argument("--max_points", type=int, default=100)
-    ap.add_argument("--state", default="PUBLISHED", choices=["PUBLISHED", "DRAFT"])
+    ap.add_argument("--state", default="DRAFT", choices=["PUBLISHED", "DRAFT"])
     ap.add_argument("--oauth_json", default=str(Path("scripts/oauth_client.json")))
-    ap.add_argument("--notify_students", action="store_true", help="Notify students of new coursework")
     args = ap.parse_args()
 
     """
@@ -63,7 +56,7 @@ def main():
     The 'execute' method makes a POST request to the Classroom API 
     to create coursework in the specified course.
     """
-    created = svc.courses().courseWork().create(courseId=args.course_id, body=body, notifyStudents=args.notify_students).execute()
+    created = svc.courses().courseWork().create(courseId=args.course_id, body=body).execute()
 
     print("✅ Created CourseWork")
     print("courseId:", args.course_id)
@@ -71,7 +64,9 @@ def main():
     print("alternateLink:", created.get("alternateLink"))
     print("maxPoints:", created.get("maxPoints"))
     print("state:", created.get("state"))
-    print("notifyStudents:", args.notify_students)
+    if created.get("state") == "DRAFT":
+        print("📝 Assignment is in DRAFT state.")
+        print("👉 Remember to publish it in Google Classroom to notify students.")
 
 if __name__ == "__main__":
     main()
