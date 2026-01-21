@@ -35,7 +35,7 @@ def main():
     https://www.googleapis.com/auth/classroom.coursework.students to get credentials.
     """
     flow = InstalledAppFlow.from_client_secrets_file(args.oauth_json, SCOPES)
-    creds = flow.run_local_server(port=0)
+    creds = flow.run_local_server(port=0, open_browser=False)
 
     """
     Build here is googleapiclient.discovery.build from the Google API Python client. 
