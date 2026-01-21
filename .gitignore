@@ -9,3 +9,4 @@ Thumbs.db
 
 #secrets
 oauth_client.json
+token.json
