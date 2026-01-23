@@ -2,6 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 const firebaseConfig = {
+  // Firebase web API keys are intentionally public and restricted by referrer.
+  // See: https://firebase.google.com/docs/projects/api-keys
+  // GitHub flags the apiKey line as a secret, but it's not a secret.
   apiKey: "AIzaSyDTfaBrAa-CbXJNRwlxltVnKVfRvxxyfMQ",
   authDomain: "instant-voyager-485007-v4.firebaseapp.com",
   projectId: "instant-voyager-485007-v4",
@@ -40,7 +43,7 @@ submitBtn.addEventListener("click", async () => {
 
     const data = await resp.json();
     log("Backend /whoami response:\n" + JSON.stringify(data, null, 2));
-    
+
   } catch (e) {
     log("Error: " + (e?.message || e));
   }
