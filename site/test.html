@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A1 Word List Practice: The Gift of the World</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; line-height: 1.4; margin: 24px; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; }
+    .sub { margin: 0 0 18px; color: #444; }
+    .panel { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 14px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .btn { border: 1px solid #ccc; background: #fff; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { border-color: #333; }
+    .btn.good { border-color: #2a7; }
+    .btn.bad { border-color: #c33; }
+    select, input { padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; }
+    input { min-width: 220px; }
+    .big { font-size: 30px; font-weight: 650; }
+    .tag { font-size: 12px; border: 1px solid #ddd; padding: 2px 8px; border-radius: 999px; color: #444; }
+    .msg { margin-top: 10px; min-height: 22px; }
+    .ok { color: #1a7; }
+    .no { color: #c33; }
+    .hint { color: #555; }
+    .score { font-variant-numeric: tabular-nums; color: #333; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .small { color: #555; font-size: 14px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 18px; text-align: center; }
+    .card .front { margin-bottom: 8px; }
+    .card .back { display: none; color: #333; }
+    .card.flipped .back { display: block; }
+    .card.flipped .front { display: none; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 6px; border: 1px solid #e5e5e5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>A1 Vocabulary Practice</h1>
+    <p class="sub">“The Gift of the World” (Russian ↔ English). Type answers, get instant feedback, and review with flashcards.</p>
+
+    <div class="panel">
+      <div class="row">
+        <span class="tag">Mode</span>
+        <button class="btn primary" id="modeQuizBtn">Typing Quiz</button>
+        <button class="btn" id="modeFlashBtn">Flashcards</button>
+
+        <span style="flex:1"></span>
+
+        <span class="tag">Group</span>
+        <select id="groupSelect" aria-label="Word group">
+          <option value="all">All (verbs + nouns)</option>
+          <option value="verbs">Verbs</option>
+          <option value="nouns">Nouns</option>
+        </select>
+
+        <button class="btn" id="shuffleBtn" title="Shuffle the deck">Shuffle</button>
+        <button class="btn" id="resetBtn" title="Reset score and start over">Reset</button>
+      </div>
+      <p class="small" style="margin:10px 0 0;">
+        Tip: Press <span class="kbd">Enter</span> to check in quiz mode. Press <span class="kbd">Space</span> to flip in flashcards mode.
+      </p>
+    </div>
+
+    <!-- Typing Quiz -->
+    <div class="panel" id="quizPanel">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="tag" id="quizTypeTag">Typing Quiz</div>
+          <div class="big" id="promptRu">…</div>
+          <div class="small" id="promptMeta">…</div>
+        </div>
+        <div class="score">
+          <div><strong>Score:</strong> <span id="scoreGood">0</span> ✅ / <span id="scoreBad">0</span> ❌</div>
+          <div class="small"><span id="progress">0</span>/<span id="total">0</span> seen</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px;">
+        <input id="answerInput" type="text" placeholder="Type English meaning…" autocomplete="off" />
+        <button class="btn primary" id="checkBtn">Check</button>
+        <button class="btn" id="hintBtn">Hint</button>
+        <button class="btn" id="showBtn">Show</button>
+        <button class="btn" id="nextBtn">Next</button>
+      </div>
+
+      <div class="msg" id="feedback" aria-live="polite"></div>
+    </div>
+
+    <!-- Flashcards -->
+    <div class="panel" id="flashPanel" style="display:none;">
+      <div class="grid">
+        <div class="card" id="flashCard" tabindex="0" role="button" aria-label="Flashcard: click to flip">
+          <div class="front">
+            <div class="tag" id="flashTag">Flashcard</div>
+            <div class="big" id="flashFront">…</div>
+            <div class="small" id="flashFrontMeta">Russian</div>
+          </div>
+          <div class="back">
+            <div class="tag">Answer</div>
+            <div class="big" id="flashBack">…</div>
+            <div class="small" id="flashBackMeta">English</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="row" style="margin-bottom:10px;">
+            <button class="btn" id="flipBtn">Flip</button>
+            <button class="btn good" id="knewBtn">I knew it ✅</button>
+            <button class="btn bad" id="missedBtn">I missed ❌</button>
+          </div>
+          <p class="small">
+            Use self-scoring to track what you know. The deck will keep rotating.
+          </p>
+          <p class="score">
+            <strong>Self-score:</strong> <span id="flashGood">0</span> ✅ / <span id="flashBad">0</span> ❌
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Data (A1 verbs + nouns only) ---
+    const WORDS = [
+      // Verbs
+      { group: "verbs", ru: "быть", en: ["to be"] },
+      { group: "verbs", ru: "быть (было́, был)", en: ["was"] },
+      { group: "verbs", ru: "быть (есть)", en: ["is"] },
+      { group: "verbs", ru: "появи́ться", en: ["to appear", "appear"] },
+      { group: "verbs", ru: "прийти́ (пришёл)", en: ["to come", "come"] },
+      { group: "verbs", ru: "расти́ (вы́росли)", en: ["to grow", "grow"] },
+      { group: "verbs", ru: "прогна́ть", en: ["to push away", "push away"] },
+      { group: "verbs", ru: "заботи́ться", en: ["to care", "care"] },
+      { group: "verbs", ru: "помога́ть", en: ["to help", "help"] },
+      { group: "verbs", ru: "смотре́ть", en: ["to watch", "watch", "to look", "look"] },
+      { group: "verbs", ru: "должны́", en: ["must"] },
+
+      // Nouns
+      { group: "nouns", ru: "тишина́", en: ["silence"] },
+      { group: "nouns", ru: "свет", en: ["light"] },
+      { group: "nouns", ru: "тьма́", en: ["darkness"] },
+      { group: "nouns", ru: "не́бо", en: ["sky"] },
+      { group: "nouns", ru: "мо́ре", en: ["sea"] },
+      { group: "nouns", ru: "земля́", en: ["land", "earth"] },
+      { group: "nouns", ru: "расте́ние", en: ["plant"] },
+      { group: "nouns", ru: "живо́тное", en: ["animal"] },
+      { group: "nouns", ru: "лю́ди", en: ["people"] },
+      { group: "nouns", ru: "мир", en: ["world"] },
+      { group: "nouns", ru: "ме́сто", en: ["place"] },
+      { group: "nouns", ru: "дар", en: ["gift"] },
+    ];
+
+    // --- Helpers ---
+    const $ = (id) => document.getElementById(id);
+
+    function normalizeAnswer(s) {
+      return (s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function pickDeck(group) {
+      const base = WORDS.filter(w => group === "all" ? true : w.group === group);
+      return base.slice();
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getHint(en) {
+      // simple hint: first letter + length
+      const clean = en.replace(/^to\s+/, "");
+      return `${clean[0].toUpperCase()}… (${clean.length} letters)`;
+    }
+
+    // --- State ---
+    let mode = "quiz"; // quiz | flash
+    let group = "all";
+    let deck = shuffle(pickDeck(group));
+    let idx = 0;
+
+    // quiz scoring
+    let good = 0, bad = 0, seen = new Set();
+
+    // flash self-score
+    let fGood = 0, fBad = 0;
+
+    // --- UI: Mode switching ---
+    function setMode(newMode) {
+      mode = newMode;
+      $("modeQuizBtn").classList.toggle("primary", mode === "quiz");
+      $("modeFlashBtn").classList.toggle("primary", mode === "flash");
+      $("quizPanel").style.display = mode === "quiz" ? "block" : "none";
+      $("flashPanel").style.display = mode === "flash" ? "block" : "none";
+      render();
+      if (mode === "quiz") $("answerInput").focus();
+    }
+
+    // --- UI: Group switching ---
+    function setGroup(newGroup) {
+      group = newGroup;
+      deck = shuffle(pickDeck(group));
+      idx = 0;
+      seen = new Set();
+      $("scoreGood").textContent = "0";
+      $("scoreBad").textContent = "0";
+      good = 0; bad = 0;
+      render();
+    }
+
+    function current() {
+      return deck[idx % deck.length];
+    }
+
+    // --- Quiz ---
+    function renderQuiz() {
+      const w = current();
+      $("promptRu").textContent = w.ru;
+      $("promptMeta").textContent = w.group === "verbs" ? "Verb (глаго́л)" : "Noun (су́ществи́тельное)";
+      $("feedback").textContent = "";
+      $("feedback").className = "msg";
+      $("answerInput").value = "";
+
+      $("total").textContent = String(deck.length);
+      $("progress").textContent = String(seen.size);
+    }
+
+    function checkQuiz() {
+      const w = current();
+      const ans = normalizeAnswer($("answerInput").value);
+      const acceptable = w.en.map(normalizeAnswer);
+
+      // accept "to X" and "X" variants already included; also accept commas as separators
+      const parts = ans.split(",").map(p => normalizeAnswer(p)).filter(Boolean);
+
+      const isCorrect =
+        acceptable.includes(ans) ||
+        parts.some(p => acceptable.includes(p));
+
+      seen.add(w.ru);
+      $("progress").textContent = String(seen.size);
+
+      if (isCorrect) {
+        good += 1;
+        $("scoreGood").textContent = String(good);
+        $("feedback").textContent = "✅ Correct!";
+        $("feedback").className = "msg ok";
+      } else {
+        bad += 1;
+        $("scoreBad").textContent = String(bad);
+        $("feedback").textContent = `❌ Not quite. Answer: ${w.en[0]}`;
+        $("feedback").className = "msg no";
+      }
+    }
+
+    function hintQuiz() {
+      const w = current();
+      $("feedback").textContent = `Hint: ${getHint(w.en[0])}`;
+      $("feedback").className = "msg hint";
+    }
+
+    function showQuiz() {
+      const w = current();
+      $("feedback").textContent = `Answer: ${w.en.join(" / ")}`;
+      $("feedback").className = "msg hint";
+    }
+
+    function nextCard() {
+      idx = (idx + 1) % deck.length;
+      render();
+    }
+
+    // --- Flashcards ---
+    function renderFlash() {
+      const w = current();
+      const card = $("flashCard");
+      card.classList.remove("flipped");
+      $("flashFront").textContent = w.ru;
+      $("flashBack").textContent = w.en[0];
+      $("flashFrontMeta").textContent = "Russian";
+      $("flashBackMeta").textContent = "English";
+      $("flashGood").textContent = String(fGood);
+      $("flashBad").textContent = String(fBad);
+    }
+
+    function flipFlash() {
+      $("flashCard").classList.toggle("flipped");
+    }
+
+    function flashScore(ok) {
+      if (ok) fGood++; else fBad++;
+      $("flashGood").textContent = String(fGood);
+      $("flashBad").textContent = String(fBad);
+      nextCard();
+    }
+
+    // --- Render ---
+    function render() {
+      if (!deck.length) return;
+      if (mode === "quiz") renderQuiz();
+      else renderFlash();
+    }
+
+    // --- Events ---
+    $("modeQuizBtn").addEventListener("click", () => setMode("quiz"));
+    $("modeFlashBtn").addEventListener("click", () => setMode("flash"));
+
+    $("groupSelect").addEventListener("change", (e) => setGroup(e.target.value));
+
+    $("shuffleBtn").addEventListener("click", () => { shuffle(deck); idx = 0; render(); });
+    $("resetBtn").addEventListener("click", () => {
+      good = 0; bad = 0; seen = new Set();
+      fGood = 0; fBad = 0;
+      $("scoreGood").textContent = "0";
+      $("scoreBad").textContent = "0";
+      $("flashGood").textContent = "0";
+      $("flashBad").textContent = "0";
+      idx = 0;
+      render();
+    });
+
+    $("checkBtn").addEventListener("click", checkQuiz);
+    $("hintBtn").addEventListener("click", hintQuiz);
+    $("showBtn").addEventListener("click", showQuiz);
+    $("nextBtn").addEventListener("click", nextCard);
+
+    $("answerInput").addEventListener("keydown", (e) => {
+      if (mode !== "quiz") return;
+      if (e.key === "Enter") checkQuiz();
+    });
+
+    $("flashCard").addEventListener("click", flipFlash);
+    $("flipBtn").addEventListener("click", flipFlash);
+    $("knewBtn").addEventListener("click", () => flashScore(true));
+    $("missedBtn").addEventListener("click", () => flashScore(false));
+
+    document.addEventListener("keydown", (e) => {
+      if (mode !== "flash") return;
+      if (e.code === "Space") { e.preventDefault(); flipFlash(); }
+    });
+
+    // Init
+    render();
+  </script>
+</body>
+</html>

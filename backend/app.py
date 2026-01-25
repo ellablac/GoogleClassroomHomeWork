@@ -1,5 +1,22 @@
+"""
+Flask backend for verifying Firebase ID tokens.
+
+Endpoints:
+- GET /health: lightweight health check.
+- POST /whoami: verifies a Firebase ID token and returns identity info.
+
+Auth:
+- Expects an Authorization header: "Bearer <Firebase ID token>".
+
+Environment:
+- FIREBASE_SERVICE_ACCOUNT_JSON: optional service account JSON string.
+  If not set, Application Default Credentials are used.
+"""
+
 import os
-from flask import Flask, request, jsonify
+from typing import Any
+
+from flask import Flask, request, jsonify, Response
 
 import firebase_admin
 from firebase_admin import auth as fb_auth, credentials
@@ -25,10 +42,12 @@ if not firebase_admin._apps:
 
 @app.get("/health")
 def health():
+    """Return a basic health check response."""
     return "ok", 200
 
 @app.route("/whoami", methods=["POST", "OPTIONS"])
 def whoami():
+    """Verify a Firebase ID token and return basic identity claims."""
     if request.method == "OPTIONS":
         return ("", 204)
     
@@ -52,6 +71,7 @@ def whoami():
 
 @app.after_request
 def add_cors_headers(resp):
+    """Attach CORS headers for approved origins."""
     origin = request.headers.get("Origin")
     if origin in ALLOWED_ORIGINS:
         resp.headers["Access-Control-Allow-Origin"] = origin
